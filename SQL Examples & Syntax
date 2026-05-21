@@ -1,0 +1,591 @@
+-- CREATE
+
+Create database pw;
+use pw;
+create table courses
+(course_id char(10),
+course_name varchar(30),
+Mode_of_delivery varchar(10),
+students_intake Int,
+Faculty varchar(30));
+
+-- INSERT
+
+insert into courses
+values("001","Data Analytics","Live",70,"Sachin"),
+("002","Data science","Live",75,"Sourav"),
+("003","Machine learning","recorded",90,"Ravi"),
+("004","Data engineer","recorded",60,"Sunil"),
+("005","Data science","live",85,"aryan"),
+("006","Data science","live",55,"Akash");
+
+
+-- ALTER
+
+Alter table courses add column location varchar(30);
+alter table PW_courses drop column location;
+alter table PW_courses rename to courses;
+ALTER TABLE table_name RENAME COLUMN old_column_name TO new_column_name;
+
+-- DROP
+
+DROP TABLE COURSES;
+
+-- UPDATE
+
+update courses
+set Faculty = "Sourabh"
+where course_id = "002";
+
+-- DELETE
+
+DELETE FROM EMPLOYEES
+WHERE ID = 1;
+--------------------------------------------------------------------------SQL_Commands----------------------------------------------------------------------------------------------
+ 
+ DDL                                  DCL                               DML                                     TCL                                DQL
+-----                                 ------                            ------                                  -------                            -------
+1.Create                              1.Grant                           1.Insert                                1.Commit                           1.select
+2.Drop                                2.Revoke                          2.Update                                2.Rollback
+3.Alter                                                                 3.Delete                                3.Savepoint
+4.Truncate
+
+------------------------------------------------------------------------------ORDERS------------------------------------------------------------------------------------------------
+Execute Order                          Coding order       
+-----------------                      ----------------
+1. FROM                                1. SELECT DISTINCT COLUMN1, SUM(COLUMN2)              
+2. WHERE                               2. FROM TABLEE
+3. GROUP BY                            3. WHERE COLUMNM = 10
+4. HAVING                              4. GROUP BY COLUMN1
+5. SELECT DISTINCT                     5. HAVING SUM(COLUMN2) > 30
+6. ORDER BY                            6. ORDER BY COLUMN1 ASC
+7. LIMIT                               7. LIMIT 2
+									   
+---------------------------------------------------------------------------SQL_Clauses-----------------------------------------------------------------------------------------------
+
+-- WHERE
+
+SELECT * from Employees WHERE Department = 'IT'                                                                                                                            Filtering
+
+-- LIKE
+
+select * from Employees where EmpName LIKE "A%";                                                                                        Starting "A%", Ending "%A", Anywhere "%ABC%"
+
+-- ORDER BY
+
+select * from employees where department = 'IT' order by hire_date DESC;                                                                                                     Sorting
+
+-- AND / OR
+
+SELECT * from Employees WHERE Department = 'IT' OR Department ='HR'                                                                              select multiple rows in same column
+
+Select * from Employees where City = 'Delhi' and salary > 50000;                                                                                   It combine two or more conditions
+
+-- IN
+
+SELECT * from Employees WHERE Department IN ('IT','Sales','Finance')                                                                     It’s a shorthand for multiple OR conditions
+
+-- NOT IN
+
+SELECT * from Employees WHERE Department NOT IN ('IT','Sales','Finance')
+
+-- BETWEEN
+
+Select * from Employees where salary BETWEEN '50000' AND '70000';                                                                           Filter results within a range of a value
+
+-- GROUP BY
+
+select department, count(EmpName) as EMP_Count from employees group by department;
+
+-- Having
+
+SELECT department_id, COUNT(*) AS total_employees
+FROM employees
+GROUP BY department_id
+HAVING COUNT(*) > 5;
+---------------------------------------------------------------------------CONDITIONAL_OPERATORS----------------------------------------------------------------------------------------
+USE COMPANY_DB;
+
+-- IF()
+
+Select EMPname,Department,City,salary,
+if (salary >= 60000, "Above salary","Below salary") as Status_cat from employees;
+   
+-- IF NULL()
+
+SELECT Department,City, ifnull(city,0) as citynew from employees;
+
+-- Null IF()
+use world;
+Select country_name,GNP,GNPold, nullif(GNP,GNPold) as check_GNP from country;
+
+-- C_A_S_E   ## Multiple categorization
+
+## Below 50000,50000-300000,300000-1000000, > 1000000
+
+Select City_name,City_Pop,
+ Case
+     When City_Pop <= 50000 then "Low"
+     When City_Pop between 50000 and 300000 then "Mid"
+     When City_Pop between 300000 and 1000000 then "High"
+	 else "Very high"
+ End
+	 as Pop_Cat from city;
+
+------------------------------------------------------------------------------SQL_JOINS---------------------------------------------------------------------------------------------
+
+
+## INNER JOINS
+
+	   (			   Table_1                 ) ( Table_2  )
+select ID,City_name,Countrycode,District,City_Pop,Country_name from
+city inner join country
+on
+city.countrycode = country.country_code;
+(       |Common_in_Both_Table|     )
+
+## LEFT JOINS
+
+select country_code,Country_name, Count(City_name) as NO_of_cities from
+Country left join city
+on
+country.country_code = city.countrycode
+group by country_code;
+
+
+## RIGHT JOINS
+
+select countrycode,City_name, Count(country_name) as No_Of_contries from
+City right join country
+on
+city.countrycode = country.country_code 
+group by countrycode,City_name;
+
+
+## UNION(FULL JOINS)
+
+select customerID,customerName,city, OrderID, Orderdate, Amount from
+customers left join orders
+on
+Customers.CustomerID = orders.Customer_ID
+union
+select customerID,customerName,city, OrderID, Orderdate, Amount from
+customers right join orders
+on
+Customers.CustomerID = orders.Customer_ID;
+
+ -----------------------------------------------------------------------------SUBQUERIES-----------------------------------------------------------------------------------------------------
+
+                                                                          SUBQUERY CATOGRIES
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------                                                
+																			 (DEPENDANCY)
+1. Non-correlated subquery -- A subquery that can run independtly from the main query.
+2. Correlated subquery -- A Subquery that relays(completely depends) on values from the main query.
+
+																			 (RESULT_TYPE)
+1. Scalar_subquery -- Single row subquery
+2. Row_subquery -- Multiple row & single column
+3. Table_subquery -- Multiple row & multiple column
+																		   (LOCATION/CLAUSES)
+1. Select
+2. From
+3. Join
+4. Where = Comparsion operators(<,>,=,!=/<>,>=,<=)
+           Logical operators(IN,ANY,ALL,EXISTS)
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+																   -- Non-correlated subquery
+
+## Single row subqueries (Scalar subquery)                                   The subquery functions as a single value (scalar) that the outer query compares against a single value.    
+
+                                                                                                                                                  -- select avg(city_pop) from city;
+select * from city
+where city_pop >= (select avg(city_pop) from city);
+
+
+## Multi Row subquries (Table Subquery)                                  An outer query's numerous rows are compared with the multiple rows of data returned by a multi-row subquery.
+
+																													 -- select country_code from country where continent = "Europe";
+select ID,city_name,countrycode,city_pop from city
+where countrycode in
+(select country_code from country
+where continent = "Europe");
+
+                                                                      -- Correlated subquery
+
+select * from city C
+where exists
+(select * from country Co
+where continent = "Europe"
+And c.countrycode = co.country_code);
+
+                                                                       -- LOCATION/CLAUSES
+-- Using SELECT method
+
+use world;
+select ID,city_name,countrycode,city_pop,
+(select country_name from country
+ where city.countrycode = country.country_code) as Country from city;
+ 
+ -- Using WHERE method
+ 
+ (EXISTS)
+ 
+ SELECT E.EmpID, E.EmpName, E.DeptID
+FROM Employees E
+WHERE EXISTS (
+    SELECT 1
+    FROM Projects P
+    WHERE P.DeptID = E.DeptID);
+
+(ALL)
+
+SELECT E.EmpID, E.EmpName, E.Salary
+FROM Employees E
+WHERE E.Salary > ALL (
+    SELECT H.Salary
+    FROM Employees H
+    INNER JOIN Departments D
+        ON H.DeptID = D.DeptID
+    WHERE D.DeptName = 'HR');
+
+ 
+--------------------------------------------------------------------------BUILT_IN_FUNCTIONS----------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------AGGREGATE_FUNCTIONS---------------------------------------------------------------------------------------
+
+1. SUM() -- Calculate the sum of value in column.
+2. _AVG() -- Calculate the average of value in a column.
+3. COUNT()-- Count the number of row in a column.
+4. MIN() -- Returns the minimun value in the column.
+5. MAX() -- Returns the maximum value in the column. 
+
+---------------------------------------------------------------------------STRING_FUNCTION-----------------------------------------------------------------------------------------
+USE SAKILA;
+
+# Concat
+
+select * from actor;
+
+select actor_id, first_name, last_name, concat(first_name," ",last_name) as Full_name from actor;
+
+# Upper/Lower
+
+select actor_id, lower(first_name) as lfn from actor;
+
+# Replace
+
+select replace("Hello world","world","SQL") new_o ;
+
+# Left/Right
+
+select * from address;
+
+select city_id,district,left(district,3) AS New_dis from address;
+
+# Substring
+
+select * from customer;
+
+select first_name, last_name, email, substring(email,4,8) subs from customer;
+
+# Trim/Ltrim/Rtrim
+
+select district, trim(concat("    ", district, "    ")) new_dis from address;
+
+# Reverse
+
+select reverse("Saurabh");
+
+# Length
+
+select first_name, email, length(email) as lemail from customer;
+
+--------------------------------------------------------------------------Window_function-------------------------------------------------------------------------------------------
+use world;
+
+
+# Row Number
+
+select country_name,continent, row_number() over (partition by continent order by country_name) as Serial_no from country;
+
+# Rank Number
+
+select country_name,continent, lifeexpectancy,rank() over (partition by continent order by lifeexpectancy DESC) as Rank_no from country;
+
+-- Filter the Top rank by continent
+
+SELECT * FROM (select country_name,continent, lifeexpectancy, rank() over (partition by continent order by lifeexpectancy DESC) as Rank_no from country) T WHERE Rank_no = 1;
+
+# Dense Rank 
+
+select country_name,continent, dense_rank() over (partition by continent order by lifeexpectancy) as Denserank_no from country;
+
+# Ntile
+
+select *,ntile(4) over(order by city_pop) as Pop_cat from city;
+
+# LAG (Backword data)
+
+select country_name,population, lag(population,1) over (order by population desc) as Prev_pop from country;
+
+# Lead (Forword data)
+
+select country_name,population, lead(population,1) over (order by population desc) as New_pop from country;
+
+------------------------------------------------------------------------DATE_AND_TIME_FUNCTION-----------------------------------------------------------------------------------------------------------
+
+select * from orders;
+
+
+## Year/Month/Day 																															              -- EXTRACTION PART OF DATE
+
+select Year(Orderdate) as Year from orders;
+
+select month(Orderdate) as Month from orders;
+
+select day(Orderdate) as day from orders;
+
+## Monthname/Dayname                                                                                                                                      -- EXTRACTION PART OF DATE
+
+select monthname(orderdate) as Month_name from orders;
+
+select dayname(orderdate) as Day_name from orders;
+
+
+## Curdate/curtime/now																									                         -- Return the current date and time
+
+select curdate() as Cur_date from orders;
+
+select curtime() as Cur_Time from orders;
+
+select now() as Date_Time from orders;
+
+
+## DATE_fORMAT                                   	      																								   -- CHANGE THE DATE FORMAT
+
+SELECT date_format(ORDERDATE,'%D %M %Y') iND_FORMAT FROM ORDERS;
+
+%Y: Four-digit year (e.g., 2026)
+%y: Two-digit year (e.g., 26)
+%M: Full month name (e.g., March)
+%m: Numeric month (00-12)
+%b: Abbreviated month name (e.g., Mar)
+%D: Day of the month with English suffix (1st, 2nd, etc.)
+%d: Numeric day of the month (00-31)
+%e: Numeric day of the month (0-31)
+%H: Hour (00-23)
+%i: Minutes (00-59)
+%s: Seconds (00-59)
+
+
+## DATE_ADD/DATE_SUB                                                                                                                    -- ADD & SUB A SPECIFIED INTERVAL TA A DATE.
+
+Select orderdate, date_Add(orderdate,Interval 4 Year) AS TWO_DAYS_LATER FROM ORDERS;   
+
+Select orderdate, date_sub(orderdate,Interval 4 Year) AS TWO_DAYS_LATER FROM ORDERS;
+
+## DATEDIFF
+
+SELECT DATEDIFF('2026-03-25', '2026-03-20') AS days_diff from ORDERS;
+
+--------------------------------------------------------------------------CTE(COMMON_TABLE_EXPRESSION)------------------------------------------------------------------------------
+
+
+## TYPE_OF_CTE
+
+1. Non-Recursive_CTE ( Standalone_CTE And Nested_CTE )
+
+-- Standalone_CTE = Runs independently as its self-contained and doesnt rely on other CTEs or queries.
+
+-- Nested_CTE = CTE inside another query. A nested CTE uses the result of another CTE, so it can't run independtly.
+
+2. Recursive_CTE 
+
+-- Self-referencing query that can repeatedly processes data until a specific condition is met.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+																			   Non-Recursive_CTE
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+																				STANDALONE_CTE
+																				--------------
+                                                                                
+SYNTAX:
+
+WITH cte_name AS (
+    SELECT column1, column2, ...
+    FROM table_name
+    WHERE condition
+)
+SELECT *
+FROM cte_name;
+                                                                                
+-- STEP 1 : Find total sales per customer.
+use company;
+
+with CTE_total_sales as
+(select customer_id,sum(amount) as Totalsales from orders
+ group by customer_id)
+ select 
+ C.customerID,
+ C.CustomerName,
+ CTS.Totalsales
+ from customers C left join CTE_total_sales CTS
+ on
+ cts.customer_id = c.customerID;
+ 
+																		    Multiple_Standalone_CTE
+																			-----------------------
+ -- STEP 2 : Find the last order date for each customer.
+ 
+ ,CTE_last_order as
+(select customer_id, max(orderdate) as Lastorder from orders
+ group by customer_id)
+ select 
+ C.customerID,
+ C.CustomerName,
+ CTS.Totalsales,
+ CLO.lastorder
+ from customers C left join CTE_total_sales CTS
+ on
+ cts.customer_id = c.customerID
+ left join CTE_last_order CLO
+ on
+ clo.customer_id = c.customerID;
+ 
+                                                                                 Nested_CTE
+                                                                                 ----------
+
+-- STEP 3 : Rank customers based on total sales per customer
+
+
+ ,CTE_Customer_rank as
+ (select customer_id,
+ totalsales,
+ Rank() over (order by totalsales desc) as CustomerRank
+ from CTE_total_sales)
+ select 
+ C.customerID,
+ C.CustomerName,
+ CTS.Totalsales,
+ CLO.lastorder,
+ CCR.CustomerRank
+ from customers C left join CTE_total_sales CTS
+ on
+ cts.customer_id = c.customerID
+ left join CTE_last_order CLO
+ on
+ clo.customer_id = c.customerID
+ left join CTE_Customer_rank CCR
+ on
+ CCR.customer_id = c.customerID;
+ 
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                               Recursive_CTE
+ -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ -- Question 1 : Generate a sequence of numbers from 1 to 5.
+ 
+ WITH RECURSIVE RecursiveCTE AS (
+    ( Anchor query )
+    SELECT 1 AS Number
+    
+    UNION ALL
+    
+    ( Recursive query )
+    SELECT number + 1
+    FROM RecursiveCTE
+    WHERE number < 5)
+SELECT * FROM RecursiveCTE;
+
+------------------------------------------------------------------------------------CTAs--------------------------------------------------------------------------------------------
+
+## CTAs :
+ 
+-- It’s a SQL command used to create a new table and populate it with the results of a SELECT query.
+-- Instead of manually defining columns and then inserting data, CTAS lets you build a table directly from an existing dataset.
+-- It’s often used for backups, transformations, or staging data.
+
+SYNTAX:
+
+Create table NAME as
+(SELECT...
+ FROM...
+ WHERE...)
+
+EXAMPLE:
+
+create table sachin as 
+(select course_id,course_name 
+from courses);
+
+-------------------------------------------------------------------------------------VIEWS-------------------------------------------------------------------------------------------
+
+## VIEWS :
+
+-- A view is a virtual table based on the result of a SQL query.
+-- It doesn’t store data itself; instead, it stores the query definition.
+-- When you query a view, MySQL executes the underlying query and shows the results.
+-- Views are useful for simplifying complex queries, improving security, and ensuring consistency.
+
+SYNTAX:
+
+CREATE VIEW view_name AS
+SELECT column1, column2, ...
+FROM table_name
+WHERE condition;
+
+EXAMPLE:
+
+CREATE VIEW ShortlistedCandidates AS
+SELECT CandidateID, Name, Score
+FROM Candidates
+WHERE Status = 'Shortlisted';
+
+-----------------------------------------------------------------------STORE_Procedure-----------------------------------------------------------------------------------------------
+
+## Store Procedure :
+
+-- Definition: A stored procedure is a group of SQL statements bundled together and stored in the database.
+-- Execution: Instead of writing the same query repeatedly, you call the procedure by name.
+-- Flexibility: Procedures can accept input parameters and return output values, making them dynamic.
+
+Syntax :
+
+DELIMITER $$
+CREATE PROCEDURE procedure_name ( [parameters] )
+BEGIN
+    -- SQL statements go here
+END$$
+DELIMITER ;
+
+Example :
+
+DELIMITER $$
+CREATE PROCEDURE GetEmployeeDetails(IN emp_id INT)
+BEGIN
+    SELECT EmployeeID, EmployeeName, DepartmentID, Salary
+    FROM Employees
+    WHERE EmployeeID = emp_id;
+END$$
+DELIMITER ;
+
+-------------------------------------------------------------------CAT(COMPARE_ADVANCED_TECHNIQUES)----------------------------------------------------------------------------------
+
+
+              |  SUBQUERY   |     CTE     |      TMP     |      CTAS     |      VIEWS       |
+              |
+--STORAGE     | {--------MEMORY----------} {-----------DISK-------------} {---NO_STORAGE----}
+              |
+--LIFETIME    | {--------------TEMPORARY----------------} {-----------PERMANENT-------------}
+              |			
+--WHEN_DELETED| {-----END_OF_QUERY-------} {END_SESSION-} {------------DDL-DROP-------------}
+              |
+--SCOPE       | {------SINGLE_QUERY------} {------------------MULTI_QUERY-------------------}
+              |
+--REUSABLITY  | {-LIMITED--} {--lIMITED--} {---MEDIUM---} {-------------HIGH----------------}
+              |    1_PLACE     MULTIPLACE   MULTIQUERIES            MULTIQUERIES
+              |    1_QUERY     1_QUERY      DURINGSESSION
+              |
+--UPDATE      | {---YES----} {----YES----} {-----NO-----} {-----NO------=} {------YES-------}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
